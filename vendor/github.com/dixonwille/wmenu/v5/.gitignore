@@ -1,4 +1,0 @@
-.imdone/
-*.out
-vendor/**
-!vendor/vendor.json
