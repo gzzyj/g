@@ -1,14 +1,14 @@
 # g
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/voidint/g)
-[![GoDoc](https://godoc.org/github.com/voidint/g?status.svg)](https://godoc.org/github.com/voidint/g)
+[![GoDoc](https://godoc.org/github.com/gzzyj/g?status.svg)](https://godoc.org/github.com/gzzyj/g)
 [![codecov](https://codecov.io/gh/voidint/g/branch/master/graph/badge.svg)](https://codecov.io/gh/voidint/g)
 [![codebeat badge](https://codebeat.co/badges/0b4bf243-95da-444c-b163-6cb8a35d1f8d)](https://codebeat.co/projects/github-com-voidint-g-master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/voidint/g)](https://goreportcard.com/report/github.com/voidint/g)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gzzyj/g)](https://goreportcard.com/report/github.com/gzzyj/g)
 
 [简体中文 🇨🇳](./README_CN.md)
 
-**Note:** The master branch may still be under development and may not represent a stable version. Please download stable versions of the source code through tags or download compiled binary executables through [release](https://github.com/voidint/g/releases).
+**Note:** The master branch may still be under development and may not represent a stable version. Please download stable versions of the source code through tags or download compiled binary executables through [release](https://github.com/gzzyj/g/releases).
 
 `g` is a command-line tool for Linux, macOS, and Windows that provides convenient management and switching of multiple versions of the [Go](https://golang.org/) environment.
 
@@ -51,7 +51,7 @@
 
 ### Manual Installation(for Linux/macOS)
 - Create a directory for `g` (recommended: `~/.g`)
-- Download the binary compressed file from [releases](https://github.com/voidint/g/releases) and unzip it into the `bin` subdirectory of the `g` directory (i.e. `~/.g/bin`).
+- Download the binary compressed file from [releases](https://github.com/gzzyj/g/releases) and unzip it into the `bin` subdirectory of the `g` directory (i.e. `~/.g/bin`).
 - Write necessary environment variables into `~/.g/env` file.
 
   ```shell
@@ -84,7 +84,7 @@
 ### Manual Installation (for Windows PowerShell)
 
 - Create a directory: `mkdir ~/.g/bin`
-- Download the binary compressed file for Windows version from [releases](https://github.com/voidint/g/releases), and after unzipping it, put it in the ~/.g/bin directory.
+- Download the binary compressed file for Windows version from [releases](https://github.com/gzzyj/g/releases), and after unzipping it, put it in the ~/.g/bin directory.
 - The default binary file name is `g.exe`, if you have already used `g` as an abbreviation for Git command, you can change `g.exe` to another name, such as `gvm.exe`.
 - Run the command `code $PROFILE`, this command will open the default PowerShell configuration file using VSCode.
 - Add the following content to the default PowerShell configuration file:
@@ -222,7 +222,7 @@ Remove /Users/voidint/.g
 
 - What is the purpose of the environment variable `G_HOME`?
 
-  By convention, g uses the `~/.g` directory as its home directory. If you want to customize the home directory (especially for Windows users), you can use the G_HOME environment variable to switch to another directory. Since this feature is still experimental, it requires enabling the experimental feature switch `G_EXPERIMENTAL=true` to take effect. Please note that this solution is not perfect, which is why it is classified as an experimental feature. For more details, please refer to [#18](https://github.com/voidint/g/issues/18).
+  By convention, g uses the `~/.g` directory as its home directory. If you want to customize the home directory (especially for Windows users), you can use the G_HOME environment variable to switch to another directory. Since this feature is still experimental, it requires enabling the experimental feature switch `G_EXPERIMENTAL=true` to take effect. Please note that this solution is not perfect, which is why it is classified as an experimental feature. For more details, please refer to [#18](https://github.com/gzzyj/g/issues/18).
 
 - On macOS, when installing a go version, g throws an error message saying `[g] Installation package not found.` What is the reason?
 

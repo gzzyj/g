@@ -8,7 +8,7 @@ $arch = "amd64"
 
 $base_dir = $base_dir -eq "" ? ($env:G_HOME ? $env:G_HOME : "$HOME\.g") : $base_dir
 $dest_file = "${base_dir}\downloads\g${release}.${os}-${arch}.zip"
-$url = "https://github.com/voidint/g/releases/download/v${release}/g${release}.${os}-${arch}.zip"
+$url = "https://github.com/gzzyj/g/releases/download/v${release}/g${release}.${os}-${arch}.zip"
 
 function NewDirs () {
     New-Item -Force -Path "$base_dir\downloads", "$base_dir\bin" -ItemType "directory"

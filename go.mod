@@ -1,6 +1,6 @@
-module github.com/voidint/g
+module github.com/gzzyj/g
 
-go 1.20
+go 1.26.1
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
@@ -17,7 +17,6 @@ require (
 	github.com/schollz/progressbar/v3 v3.14.6
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.25.7
-	github.com/voidint/go-update v1.0.0
 	golang.org/x/text v0.22.0
 )
 

@@ -40,15 +40,15 @@ function package() {
     local arch=${osarch[1]}
 
     printf "[1/2] Cross compile@%s_%s\n" ${os} ${arch}
-    GOOS=${os} GOARCH=${arch} gbb
+    GOOS=${os} GOARCH=${arch} make build
 
     printf "[2/2] Package\n"
     if [ ${os} == "windows" ]; then
-        zip g${release}.${os}-${arch}.zip ./g.exe
-        shasum -a 256 g${release}.${os}-${arch}.zip >>sha256sum.txt
+        zip bin/g${release}.${os}-${arch}.zip ./bin/${os}-${arch}/g.exe
+        shasum -a 256 bin/g${release}.${os}-${arch}.zip >>./bin/sha256sum.txt
     else
-        tar -czv -f g${release}.${os}-${arch}.tar.gz ./g
-        shasum -a 256 g${release}.${os}-${arch}.tar.gz >>sha256sum.txt
+        tar -czv -f bin/g${release}.${os}-${arch}.tar.gz ./bin/${os}-${arch}/g
+        shasum -a 256 bin/g${release}.${os}-${arch}.tar.gz >> bin/sha256sum.txt
     fi
 }
 
@@ -59,7 +59,7 @@ main() {
 
     local release="1.8.0"
 
-    for item in "darwin_amd64" "darwin_arm64" "linux_386" "linux_amd64" "linux_arm" "linux_arm64" "linux_s390x" "linux_riscv64" "windows_386" "windows_amd64" "windows_arm" "windows_arm64" "freebsd_386" "freebsd_amd64" "freebsd_arm" "freebsd_arm64" "freebsd_riscv64"; do
+    for item in "darwin_amd64" "darwin_arm64" "linux_386" "linux_amd64" "linux_arm" "linux_arm64" "linux_s390x" "linux_riscv64" "windows_386" "windows_amd64" "windows_arm64" "freebsd_386" "freebsd_amd64" "freebsd_arm" "freebsd_arm64" "freebsd_riscv64"; do
         package ${release} ${item}
     done
 

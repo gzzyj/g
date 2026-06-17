@@ -1,14 +1,14 @@
 # g
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/voidint/g)
-[![GoDoc](https://godoc.org/github.com/voidint/g?status.svg)](https://godoc.org/github.com/voidint/g)
+[![GoDoc](https://godoc.org/github.com/gzzyj/g?status.svg)](https://godoc.org/github.com/gzzyj/g)
 [![codecov](https://codecov.io/gh/voidint/g/branch/master/graph/badge.svg)](https://codecov.io/gh/voidint/g)
 [![codebeat badge](https://codebeat.co/badges/0b4bf243-95da-444c-b163-6cb8a35d1f8d)](https://codebeat.co/projects/github-com-voidint-g-master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/voidint/g)](https://goreportcard.com/report/github.com/voidint/g)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gzzyj/g)](https://goreportcard.com/report/github.com/gzzyj/g)
 
 [English 🇺🇸](./README.md)
 
-**注意：**`master`分支可能处于开发之中并**非稳定版本**，请通过 tag 下载稳定版本的源代码，或通过[release](https://github.com/voidint/g/releases)下载已编译的二进制可执行文件。
+**注意：**`master`分支可能处于开发之中并**非稳定版本**，请通过 tag 下载稳定版本的源代码，或通过[release](https://github.com/gzzyj/g/releases)下载已编译的二进制可执行文件。
 
 `g`是一个 Linux、macOS、Windows 下的命令行工具，可以提供一个便捷的多版本 [go](https://golang.org/) 环境的管理和切换。
 
@@ -51,7 +51,7 @@
 
 ### 手动安装（Linux/macOS）
 - 创建 g 家目录（推荐`~/.g`目录）
-- 下载[release](https://github.com/voidint/g/releases)的二进制压缩包，并解压至 g 家目录下的 bin 子目录中（即`~/.g/bin`目录）。
+- 下载[release](https://github.com/gzzyj/g/releases)的二进制压缩包，并解压至 g 家目录下的 bin 子目录中（即`~/.g/bin`目录）。
 - 将所需的环境变量写入`~/.g/env`文件
 
   ```shell
@@ -84,7 +84,7 @@
 ### 手动安装（Windows + powershell）
 
 - 创建目录`mkdir ~/.g/bin`
-- 下载[release](https://github.com/voidint/g/releases)的 windows 版本的二进制压缩包, 解压之后放到`~/.g/bin`目录下
+- 下载[release](https://github.com/gzzyj/g/releases)的 windows 版本的二进制压缩包, 解压之后放到`~/.g/bin`目录下
 - 默认二进制文件名是 g.exe, 如果你已经用 g 这个命令已经用作为 git 的缩写，那么你可以把 g.exe 改为其他名字，如 gvm.exe
 - 执行命令`code $PROFILE`, 这个命令会用 vscode 打开默认的 powershell 配置文件
 - 在 powershell 的默认配置文件中加入如下内容
@@ -219,7 +219,7 @@ Remove /Users/voidint/.g
 
 - 环境变量`G_HOME`有什么作用？
 
-  按照惯例，g 默认会将`~/.g`目录作为其家目录。若想自定义家目录（Windows 用户需求强烈），可使用该环境变量切换到其他家目录。由于**该特性还属于实验特性**，需要先开启实验特性开关`G_EXPERIMENTAL=true`才能生效。特别注意，该方案并不十分完美，因此才将其归类为实验特性，详见[#18](https://github.com/voidint/g/issues/18)。
+  按照惯例，g 默认会将`~/.g`目录作为其家目录。若想自定义家目录（Windows 用户需求强烈），可使用该环境变量切换到其他家目录。由于**该特性还属于实验特性**，需要先开启实验特性开关`G_EXPERIMENTAL=true`才能生效。特别注意，该方案并不十分完美，因此才将其归类为实验特性，详见[#18](https://github.com/gzzyj/g/issues/18)。
 
 - macOS 系统下安装 go 版本，g 抛出`[g] Installation package not found`字样的错误提示，是什么原因？
 

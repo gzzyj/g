@@ -135,11 +135,6 @@ github.com/ulikunitz/xz/lzma
 # github.com/urfave/cli/v2 v2.25.7
 ## explicit; go 1.18
 github.com/urfave/cli/v2
-# github.com/voidint/go-update v1.0.0
-## explicit; go 1.14
-github.com/voidint/go-update
-github.com/voidint/go-update/internal/binarydist
-github.com/voidint/go-update/internal/osext
 # github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8
 ## explicit
 github.com/xi2/xz
