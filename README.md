@@ -24,6 +24,7 @@
 - Support for clearing package file cache
 - Support for self-updating software (>= 1.5.0)
 - Support for clean uninstallation of the software (>= 1.5.0)
+- Support for managing Go toolchains (auto-install, follow/unfollow Go versions, name aliases)
 
 ## Installation
 
@@ -193,6 +194,108 @@ y
 Remove /Users/voidint/.g/bin/g
 Remove /Users/voidint/.g
 ```
+
+## Toolchain Management
+
+`g` can manage Go toolchains (Go binaries like `gopls`, `dlv`, `staticcheck`) alongside Go versions.
+Toolchains can either **follow** the Go version (live under `versions/<gover>/bin/` and switch with `g use`),
+or **not follow** (stay in `tools/` and remain regardless of version switches).
+
+### Register a toolchain
+
+Use a short name (built-in aliases for 18+ common tools):
+
+```shell
+$ g toolchain add dlv@latest --go-dependent
+Installing github.com/go-delve/delve/cmd/dlv@v1.27.0 ...
+Added toolchain github.com/go-delve/delve/cmd/dlv@v1.27.0 (follows Go 1.26.2)
+```
+
+Or a full module path:
+
+```shell
+$ g toolchain add github.com/go-delve/delve/cmd/dlv@latest --go-dependent
+```
+
+Or a pre-built binary from a directory:
+
+```shell
+$ g toolchain add wiregen --from /home/user/go/bin
+```
+
+Flags:
+
+- `--go-dependent` — toolchain follows the current Go version
+- `--from <dir>` — register a pre-built binary from a directory (omit to auto-install from Go module proxy)
+
+### Manage toolchains
+
+```shell
+$ g toolchain list              # List all registered toolchains
+$ g toolchain remove <name>     # Unregister and remove binary
+$ g toolchain follow <name>     # Switch to "follow Go version" mode
+$ g toolchain unfollow <name>   # Switch to "not follow" mode
+```
+
+### Name aliases
+
+Built-in aliases (`dlv` → `github.com/go-delve/delve/cmd/dlv`, `gopls` → `golang.org/x/tools/gopls`, etc.)
+cover 18+ common tools. Add custom aliases:
+
+```shell
+$ g toolchain alias add mytool github.com/user/repo/cmd/mytool
+$ g toolchain alias list                    # List all (built-in + user)
+$ g toolchain alias remove mytool           # Remove a user alias
+```
+
+### Install Go version with all following toolchains
+
+When installing a new Go version, install all registered `--go-dependent` toolchains automatically:
+
+```shell
+$ g install 1.22.0 --with-toolchains
+```
+
+This reads `toolchain.json`, finds all `go_version_dependent: true` entries, and runs
+`go install` for each one into the new version's `bin/` directory.
+
+### Configuration
+
+All toolchain data is stored in `~/.g/toolchain.json`:
+
+```json
+{
+  "toolchains": [
+    {
+      "name": "dlv",
+      "module_path": "github.com/go-delve/delve/cmd/dlv",
+      "version": "v1.27.0",
+      "install_time": "2026-06-26T14:00:00+08:00",
+      "go_version_dependent": true,
+      "go_version": "1.26.2"
+    }
+  ],
+  "known_tools": [
+    {"name": "mytool", "module": "github.com/user/repo/cmd/mytool"}
+  ]
+}
+```
+
+### Block `go install`
+
+To avoid binary conflicts, add a shell wrapper that intercepts `go install`:
+
+```bash
+go() {
+    if [[ "$1" == "install" ]]; then
+        echo "Error: 'go install' is disabled. Use 'g toolchain add' to manage toolchains." >&2
+        return 1
+    fi
+    command go "$@"
+}
+```
+
+Run `g env` to see this recommendation and the `G_TOOLS` path.
 
 ## FAQ
 

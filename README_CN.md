@@ -24,6 +24,7 @@
 - 支持清空安装包文件缓存
 - 支持软件自我更新（>= 1.5.0）
 - 支持软件绿色卸载（>= 1.5.0）
+- 支持 Go 工具链管理（自动安装、跟随/不跟随 Go 版本、名称别名）
 
 ## 安装
 
@@ -193,6 +194,108 @@ y
 Remove /Users/voidint/.g/bin/g
 Remove /Users/voidint/.g
 ```
+
+## 工具链管理
+
+`g` 可以管理 Go 工具链（如 `gopls`、`dlv`、`staticcheck` 等 Go 二进制程序）。
+工具链有两种模式：**跟随版本**（放在 `versions/<gover>/bin/` 下，随 `g use` 切换）或
+**不跟随版本**（放在 `tools/` 下，切换版本不受影响）。
+
+### 注册工具链
+
+使用短名（内置 18+ 常用工具别名）：
+
+```shell
+$ g toolchain add dlv@latest --go-dependent
+Installing github.com/go-delve/delve/cmd/dlv@v1.27.0 ...
+Added toolchain github.com/go-delve/delve/cmd/dlv@v1.27.0 (follows Go 1.26.2)
+```
+
+或使用完整 module path：
+
+```shell
+$ g toolchain add github.com/go-delve/delve/cmd/dlv@latest --go-dependent
+```
+
+或从目录注册已有二进制：
+
+```shell
+$ g toolchain add wiregen --from /home/user/go/bin
+```
+
+参数说明：
+
+- `--go-dependent` — 工具链跟随当前 Go 版本
+- `--from <dir>` — 从目录注册已有二进制（省略则从 Go module proxy 自动安装）
+
+### 管理工具链
+
+```shell
+$ g toolchain list              # 列出所有已注册工具链
+$ g toolchain remove <name>     # 注销并删除二进制
+$ g toolchain follow <name>     # 切换为"跟随版本"模式
+$ g toolchain unfollow <name>   # 切换为"不跟随版本"模式
+```
+
+### 名称别名
+
+内置别名（`dlv` → `github.com/go-delve/delve/cmd/dlv`、`gopls` → `golang.org/x/tools/gopls` 等）
+覆盖 18+ 常用工具。可添加自定义别名：
+
+```shell
+$ g toolchain alias add mytool github.com/user/repo/cmd/mytool
+$ g toolchain alias list                    # 列出所有别名（内置 + 用户自定义）
+$ g toolchain alias remove mytool           # 删除用户别名
+```
+
+### 安装 Go 版本时自动安装所有跟随工具
+
+安装新 Go 版本时，自动为所有已注册的 `--go-dependent` 工具链安装对应版本：
+
+```shell
+$ g install 1.22.0 --with-toolchains
+```
+
+此命令会读取 `toolchain.json`，找到所有 `go_version_dependent: true` 的条目，
+对新版本目录逐个执行 `go install`。
+
+### 配置文件
+
+所有工具链数据存储在 `~/.g/toolchain.json`：
+
+```json
+{
+  "toolchains": [
+    {
+      "name": "dlv",
+      "module_path": "github.com/go-delve/delve/cmd/dlv",
+      "version": "v1.27.0",
+      "install_time": "2026-06-26T14:00:00+08:00",
+      "go_version_dependent": true,
+      "go_version": "1.26.2"
+    }
+  ],
+  "known_tools": [
+    {"name": "mytool", "module": "github.com/user/repo/cmd/mytool"}
+  ]
+}
+```
+
+### 拦截 `go install`
+
+为避免二进制冲突，可在 shell rc 文件中添加拦截函数：
+
+```bash
+go() {
+    if [[ "$1" == "install" ]]; then
+        echo "错误：'go install' 命令已被禁止使用。" >&2
+        return 1
+    fi
+    command go "$@"
+}
+```
+
+运行 `g env` 可查看此建议及 `G_TOOLS` 路径。
 
 ## FAQ
 
