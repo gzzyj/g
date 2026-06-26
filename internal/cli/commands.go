@@ -70,15 +70,10 @@ var (
 		{
 			Name:      "install",
 			Aliases:   []string{"i"},
-			Usage:     "Download and install a version",
+			Usage:     "Download and install a version (use 'g use' to switch afterwards)",
 			UsageText: "g install <version>",
 			Action:    install,
 			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:    "nouse",
-					Aliases: []string{"n"},
-					Usage:   "Only install without using",
-				},
 				&cli.BoolFlag{
 					Name:  "skip-checksum",
 					Usage: "Skip checksum verification",

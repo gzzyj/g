@@ -170,26 +170,23 @@ func install(ctx *cli.Context) (err error) {
 		return cli.Exit(errstring(err), 1)
 	}
 
-	if ctx.Bool("nouse") {
-		return nil
-	}
-
-	if err = switchVersion(vname); err != nil {
-		return cli.Exit(errstring(err), 1)
-	}
-
-	// Install all go-version-dependent toolchains if --with-toolchains is set
-	// Use both ctx.Bool (flag before positional arg) and raw args scan (flag after)
+	// Install toolchains using the new Go version's compiler,
+	// BEFORE switching — so --nouse and --with-toolchains can coexist.
 	withTC := ctx.Bool("with-toolchains")
 	if !withTC {
 		withTC = hasArgFlag("--with-toolchains")
 	}
 	if withTC {
-		if err := installAllDependentToolchains(vname); err != nil {
+		newGoBin := filepath.Join(versionsDir, vname, "bin", "go")
+		if runtime.GOOS == "windows" {
+			newGoBin += ".exe"
+		}
+		if err := installAllDependentToolchains(vname, newGoBin); err != nil {
 			return cli.Exit(errstring(err), 1)
 		}
 	}
 
+	fmt.Printf("Installed go%s\n", vname)
 	return nil
 }
 

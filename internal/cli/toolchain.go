@@ -393,10 +393,16 @@ func resolveToolVersion(toolName, version string) (modulePath, resolvedVersion s
 }
 
 // installModule runs `go install <module>@<version>` with GOBIN set to gobinDir.
-func installModule(modulePath, version, gobinDir string) error {
-	goBin := filepath.Join(goroot, "bin", "go")
-	if runtime.GOOS == "windows" {
-		goBin += ".exe"
+// If goBin is empty, it defaults to the current goroot's go.
+func installModule(modulePath, version, gobinDir string, goBin ...string) error {
+	var goExe string
+	if len(goBin) > 0 && goBin[0] != "" {
+		goExe = goBin[0]
+	} else {
+		goExe = filepath.Join(goroot, "bin", "go")
+		if runtime.GOOS == "windows" {
+			goExe += ".exe"
+		}
 	}
 
 	if err := os.MkdirAll(gobinDir, 0755); err != nil {
@@ -404,12 +410,15 @@ func installModule(modulePath, version, gobinDir string) error {
 	}
 
 	spec := fmt.Sprintf("%s@%s", modulePath, version)
-	cmd := exec.Command(goBin, "install", "-mod=mod", spec)
+	cmd := exec.Command(goExe, "install", "-mod=mod", spec)
 	cmd.Dir = downloadsDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	modCache := filepath.Join(ghomeDir, "modcache")
+	_ = os.MkdirAll(modCache, 0755)
 	cmd.Env = append(os.Environ(),
 		fmt.Sprintf("GOBIN=%s", gobinDir),
+		fmt.Sprintf("GOMODCACHE=%s", modCache),
 		"GO111MODULE=on",
 	)
 
@@ -440,6 +449,8 @@ func buildInstallAction(name, version, sourcePath string, goDependent bool, goVe
 		destPath = filepath.Join(toolsDir, name)
 	}
 
+	var requestedLatest bool // user asked for @latest → store "latest" in config
+
 	if sourcePath != "" {
 		// If sourcePath is a directory, join with tool name
 		if fi, stErr := os.Stat(sourcePath); stErr == nil && fi.IsDir() {
@@ -452,17 +463,25 @@ func buildInstallAction(name, version, sourcePath string, goDependent bool, goVe
 		installOK = true
 	} else {
 		// Automatic module install
+		requestedLatest = (version == "latest")
 		mp, resolvedVersion, err := resolveToolVersion(name, version)
 		if err != nil {
 			return nil, err
 		}
 		modulePath = mp
-		version = resolvedVersion
 
-		if err := installModule(modulePath, version, filepath.Dir(destPath)); err != nil {
+		// Install with the resolved version (go install <module>@<version>)
+		if err := installModule(modulePath, resolvedVersion, filepath.Dir(destPath)); err != nil {
 			return nil, err
 		}
 		installOK = true
+
+		// Store "latest" when user asked for @latest, so --with-toolchains re-resolves each time
+		if requestedLatest {
+			version = "latest"
+		} else {
+			version = resolvedVersion
+		}
 	}
 
 	if !installOK {
@@ -802,13 +821,16 @@ func toolchainUnfollow(ctx *cli.Context) error {
 // into the specified Go version's bin directory, using the module path and
 // version recorded in the config. Updates the config entries to point to the
 // new Go version.
-func installAllDependentToolchains(goVersion string) error {
+func installAllDependentToolchains(goVersion string, goBin ...string) error {
 	cfg, err := loadToolchainCfg()
 	if err != nil {
 		return err
 	}
 
-	var installed int
+	var (
+		installed   int
+		hadAny      bool // at least one toolchain matched the filter
+	)
 	gobinDir := filepath.Join(versionsDir, goVersion, "bin")
 
 	for i := range cfg.Toolchains {
@@ -816,8 +838,23 @@ func installAllDependentToolchains(goVersion string) error {
 		if !tc.GoVersionDependent || tc.ModulePath == "" || tc.Version == "" {
 			continue
 		}
+		hadAny = true
 
-		if err := installModule(tc.ModulePath, tc.Version, gobinDir); err != nil {
+		// Always prompt for version selection — following Go version means
+		// choosing the right toolchain version for each Go version.
+		fmt.Printf("  Querying versions for %s ...\n", tc.Name)
+		versions, vErr := listModuleVersions(tc.ModulePath)
+		if vErr != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to query versions for %s: %v\n", tc.Name, vErr)
+			continue
+		}
+		selected, vErr := promptVersionSelect(versions)
+		if vErr != nil {
+			fmt.Fprintf(os.Stderr, "Warning: version selection cancelled for %s: %v\n", tc.Name, vErr)
+			continue
+		}
+
+		if err := installModule(tc.ModulePath, selected, gobinDir, goBin...); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to install %s: %v\n", tc.Name, err)
 			continue
 		}
@@ -832,6 +869,8 @@ func installAllDependentToolchains(goVersion string) error {
 			return fmt.Errorf("save config after installing toolchains: %w", err)
 		}
 		fmt.Printf("Installed %d toolchain(s) for Go %s\n", installed, goVersion)
+	} else if hadAny {
+		fmt.Fprintln(os.Stderr, "All following toolchains failed to install — see warnings above")
 	} else {
 		fmt.Println("No following toolchains configured to install")
 	}
