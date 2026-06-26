@@ -35,6 +35,22 @@ var envNames = []string{
 
 func showEnv(ctx *cli.Context) (err error) {
 	printEnv(os.Stdout, envNames)
+	_, _ = fmt.Fprintf(os.Stdout, "%s=%q\n", toolsEnv, toolsDir)
+
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "# To add tools directory to PATH and block 'go install',")
+	fmt.Fprintln(os.Stderr, "# add the following to your shell rc file (e.g. ~/.bashrc, ~/.zshrc):")
+	fmt.Fprintln(os.Stderr, "#")
+	fmt.Fprintf(os.Stderr, "# export %s=%q\n", toolsEnv, toolsDir)
+	fmt.Fprintln(os.Stderr, "# export PATH=\"$PATH:$G_TOOLS\"")
+	fmt.Fprintln(os.Stderr, "#")
+	fmt.Fprintln(os.Stderr, "# go() {")
+	fmt.Fprintln(os.Stderr, "#     if [[ \"$1\" == \"install\" ]]; then")
+	fmt.Fprintln(os.Stderr, "#         echo \"Error: 'go install' is disabled. Use 'g toolchain add' to manage toolchains.\" >&2")
+	fmt.Fprintln(os.Stderr, "#         return 1")
+	fmt.Fprintln(os.Stderr, "#     fi")
+	fmt.Fprintln(os.Stderr, "#     command go \"$@\"")
+	fmt.Fprintln(os.Stderr, "# }")
 	return nil
 }
 

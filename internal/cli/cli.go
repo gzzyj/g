@@ -22,6 +22,7 @@ var (
 	downloadsDir string
 	versionsDir  string
 	goroot       string
+	toolsDir     string
 )
 
 // Run executes the g command line interface.
@@ -43,7 +44,11 @@ func Run() {
 			return err
 		}
 		versionsDir = filepath.Join(ghomeDir, "versions")
-		return os.MkdirAll(versionsDir, 0750)
+		if err = os.MkdirAll(versionsDir, 0750); err != nil {
+			return err
+		}
+		toolsDir = filepath.Join(ghomeDir, "tools")
+		return os.MkdirAll(toolsDir, 0750)
 	}
 	app.Commands = commands
 
@@ -87,6 +92,7 @@ const (
 	experimentalEnv = "G_EXPERIMENTAL"
 	homeEnv         = "G_HOME"
 	mirrorEnv       = "G_MIRROR"
+	toolsEnv        = "G_TOOLS"
 )
 
 const (

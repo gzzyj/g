@@ -83,6 +83,10 @@ var (
 					Name:  "skip-checksum",
 					Usage: "Skip checksum verification",
 				},
+				&cli.BoolFlag{
+					Name:  "with-toolchains",
+					Usage: "Install all registered go-version-dependent toolchains for this Go version",
+				},
 			},
 		},
 		{
@@ -133,6 +137,80 @@ var (
 			Usage:     "Run in mcp server mode",
 			UsageText: "g mcp",
 			Action:    runMcpServer,
+		},
+		{
+			Name:  "toolchain",
+			Usage: "Manage Go toolchains",
+			Subcommands: []*cli.Command{
+				{
+					Name:      "add",
+					Usage:     "Register or auto-install a toolchain",
+					UsageText: "g toolchain add <name>[@<version>] [--from <dir>] [--go-dependent]",
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "from",
+							Usage: "Directory with the same-named binary (omit to auto-install from Go module proxy)",
+						},
+						&cli.BoolFlag{
+							Name:  "go-dependent",
+							Usage: "This toolchain follows the current Go version",
+						},
+					},
+					Action: toolchainAdd,
+				},
+				{
+					Name:      "remove",
+					Aliases:   []string{"rm"},
+					Usage:     "Unregister a toolchain and remove its binary",
+					UsageText: "g toolchain remove <name>",
+					Action:    toolchainRemove,
+				},
+				{
+					Name:      "list",
+					Aliases:   []string{"ls"},
+					Usage:     "List all registered toolchains",
+					UsageText: "g toolchain list",
+					Action:    toolchainList,
+				},
+				{
+					Name:  "alias",
+					Usage: "Manage tool name ↔ module path aliases",
+					Subcommands: []*cli.Command{
+						{
+							Name:      "add",
+							Usage:     "Add or update a short name alias",
+							UsageText: "g toolchain alias add <name> <module>",
+							Action:    toolchainAliasAdd,
+						},
+						{
+							Name:      "remove",
+							Aliases:   []string{"rm"},
+							Usage:     "Remove a user-defined alias",
+							UsageText: "g toolchain alias remove <name>",
+							Action:    toolchainAliasRemove,
+						},
+						{
+							Name:      "list",
+							Aliases:   []string{"ls"},
+							Usage:     "List all known aliases (built-in + user)",
+							UsageText: "g toolchain alias list",
+							Action:    toolchainAliasList,
+						},
+					},
+				},
+				{
+					Name:      "follow",
+					Usage:     "Make a toolchain follow the current Go version",
+					UsageText: "g toolchain follow <name>",
+					Action:    toolchainFollow,
+				},
+				{
+					Name:      "unfollow",
+					Usage:     "Make a toolchain not follow the current Go version",
+					UsageText: "g toolchain unfollow <name>",
+					Action:    toolchainUnfollow,
+				},
+			},
 		},
 	}
 )

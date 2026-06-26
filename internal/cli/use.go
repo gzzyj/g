@@ -59,6 +59,8 @@ func use(ctx *cli.Context) error {
 		return cli.Exit(errstring(err), 1)
 	}
 
+	oldVersion := inuse(goroot)
+
 	// Try to match the version number strictly first
 	for i := range versions {
 		if versions[i].Name() != vname {
@@ -66,6 +68,11 @@ func use(ctx *cli.Context) error {
 		}
 		if err = switchVersion(versions[i].Name()); err != nil {
 			return cli.Exit(errstring(err), 1)
+		}
+		if oldVersion != "" && oldVersion != versions[i].Name() {
+			if err := migrateDependentToolchains(oldVersion, versions[i].Name()); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: toolchain migration failed: %v\n", err)
+			}
 		}
 		return nil
 	}
@@ -82,6 +89,11 @@ func use(ctx *cli.Context) error {
 		}
 		if err = switchVersion(versions[j].Name()); err != nil {
 			return cli.Exit(errstring(err), 1)
+		}
+		if oldVersion != "" && oldVersion != versions[j].Name() {
+			if err := migrateDependentToolchains(oldVersion, versions[j].Name()); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: toolchain migration failed: %v\n", err)
+			}
 		}
 		return nil
 	}

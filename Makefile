@@ -14,7 +14,7 @@ build:
 	$(GO) build $(GO_FLAGS)  -o ./bin/g  ${BUILD_PATH}
 
 install: build
-	$(GO) install $(GO_FLAGS)
+	$(GO) install $(GO_FLAGS) ${BUILD_PATH}
 
 build-all: build-linux build-darwin build-windows build-freebsd
 

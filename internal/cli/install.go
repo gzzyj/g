@@ -177,6 +177,19 @@ func install(ctx *cli.Context) (err error) {
 	if err = switchVersion(vname); err != nil {
 		return cli.Exit(errstring(err), 1)
 	}
+
+	// Install all go-version-dependent toolchains if --with-toolchains is set
+	// Use both ctx.Bool (flag before positional arg) and raw args scan (flag after)
+	withTC := ctx.Bool("with-toolchains")
+	if !withTC {
+		withTC = hasArgFlag("--with-toolchains")
+	}
+	if withTC {
+		if err := installAllDependentToolchains(vname); err != nil {
+			return cli.Exit(errstring(err), 1)
+		}
+	}
+
 	return nil
 }
 
